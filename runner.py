@@ -1,5 +1,5 @@
 import click
-import pandas as pd
+from sstservice import SingleTestHandler
 
 
 @click.command()
@@ -8,7 +8,8 @@ import pandas as pd
 @click.option('--outdir', default=r'C:\temp')
 @click.option('--ticker', default='IWM')
 def main(server_host, server_port, outdir, ticker):
-    pass
+    sth = SingleTestHandler(server_host, server_port, ticker)
+    sth.run_date('20170515')
 
 if __name__ == '__main__':
     main()
