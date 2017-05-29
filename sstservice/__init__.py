@@ -65,7 +65,8 @@ class SingleDayTest(object):
 
     def run_test(self):
         for curr_i in range(1, len(self._date) - 1):
-            # print(self._date[curr_i].strftime(DATETIME_FORMAT))
+            # if self._date[curr_i].strftime(DATETIME_FORMAT) == '2017-05-15 12:01:00':
+            #     print(self._date[curr_i].strftime(DATETIME_FORMAT))
             self.map.get(self._state)(curr_i + 1)
 
     def initial_status(self, i):
@@ -106,3 +107,15 @@ class SingleDayTest(object):
             # we here check if the price has moved a lot but took too long to reverse.
             self._state = Status.INIT
         self._last_move_index = i
+
+    def owl_long(self, i):
+        pass
+
+    def owl_short(self, i):
+        pass
+
+    def pocket_long(self, i):
+        pass
+
+    def pocket_short(self, i):
+        pass
