@@ -1,4 +1,5 @@
 import pandas as pd
+import os
 from sststrategy import SignalFinder as F
 from enum import Enum
 
@@ -12,6 +13,11 @@ class Status(Enum):
     AMBIGUOUS_UP = 'Ambiguous Up'
     OWL_LONG = 'Owl Long'
     OWL_SHORT = 'Owl Short'
+
+
+class TradeDirection(Enum):
+    LONG = 'Long'
+    SHORT = 'Short'
 
 
 class SingleTestHandler(object):
@@ -78,12 +84,13 @@ class SingleDayTest(object):
             self._state = Status.AMBIGUOUS_UP
 
     def ambiguous_up(self, i):
-        if F.is_owl_short_after_ambiguous_up(self.rl10[:i], self.rl30[:i], self.dragon_mean[:i], self.dragon_lower[:i], LOOK_BACK_PERIOD):
-        # if F.is_slope_negative(self.rl10[:i]) and \
-        #         F.is_slope_negative(self.rl30[:i]) and \
-        #         F.is_slope_negative(self.dragon_mean[:i]) and \
-        #         F.is_cross_below(self.rl10[:i], self.rl30[:i], look_back_period=LOOK_BACK_PERIOD) and \
-        #         F.is_cross_below(self.rl10[:i], self.dragon_lower[:i], look_back_period=LOOK_BACK_PERIOD):
+        if F.is_owl_short_after_ambiguous_up(self.rl10[:i], self.rl30[:i], self.dragon_mean[:i], self.dragon_lower[:i],
+                                             LOOK_BACK_PERIOD):
+            # if F.is_slope_negative(self.rl10[:i]) and \
+            #         F.is_slope_negative(self.rl30[:i]) and \
+            #         F.is_slope_negative(self.dragon_mean[:i]) and \
+            #         F.is_cross_below(self.rl10[:i], self.rl30[:i], look_back_period=LOOK_BACK_PERIOD) and \
+            #         F.is_cross_below(self.rl10[:i], self.dragon_lower[:i], look_back_period=LOOK_BACK_PERIOD):
             print(self._date[:i][-1].strftime(DATETIME_FORMAT) + ' ' + 'SHORT OWL')
             # TODO: should here enter the trade and figure out the exit strategy
             self._state = Status.INIT
@@ -94,12 +101,13 @@ class SingleDayTest(object):
         self._last_move_index = i
 
     def ambiguous_down(self, i):
-        if F.is_owl_long_after_ambiguous_down(self.rl10[:i], self.rl30[:i], self.dragon_mean[:i], self.dragon_upper[:i], LOOK_BACK_PERIOD):
-        # if F.is_slope_positive(self.rl10[:i]) and \
-        #         F.is_slope_positive(self.rl30[:i]) and \
-        #         F.is_slope_positive(self.dragon_mean[:i]) and \
-        #         F.is_cross_above(self.rl10[:i], self.rl30[:i], look_back_period=LOOK_BACK_PERIOD) and \
-        #         F.is_cross_above(self.rl10[:i], self.dragon_upper[:i], look_back_period=LOOK_BACK_PERIOD):
+        if F.is_owl_long_after_ambiguous_down(self.rl10[:i], self.rl30[:i], self.dragon_mean[:i], self.dragon_upper[:i],
+                                              LOOK_BACK_PERIOD):
+            # if F.is_slope_positive(self.rl10[:i]) and \
+            #         F.is_slope_positive(self.rl30[:i]) and \
+            #         F.is_slope_positive(self.dragon_mean[:i]) and \
+            #         F.is_cross_above(self.rl10[:i], self.rl30[:i], look_back_period=LOOK_BACK_PERIOD) and \
+            #         F.is_cross_above(self.rl10[:i], self.dragon_upper[:i], look_back_period=LOOK_BACK_PERIOD):
             print(self._date[:i][-1].strftime(DATETIME_FORMAT) + ' ' + 'LONG OWL')
             # TODO: should here enter the trade and figure out the exit strategy
             self._state = Status.INIT
@@ -121,3 +129,35 @@ class SingleDayTest(object):
 
     def pocket_short(self, i):
         pass
+
+
+class Trade(object):
+    def __init__(self, enter_price, trade_direction, enter_time, stop_price):
+        self.enter_price = enter_price
+        self.direction = trade_direction
+        self.enter_time = enter_time
+        self.exit_price = None
+        self.exit_time = None
+        self.initial_stop = stop_price
+        self.stop_price = stop_price
+
+    def is_stop_hit(self, high, low, curr_time):
+        if (self.direction == TradeDirection.LONG and self.stop_price >= low) or (
+                self.direction == TradeDirection.SHORT and self.stop_price <= high):
+            self.exit_price = self.stop_price
+            self.exit_time = curr_time
+            return True
+        return False
+
+    def is_open_trade(self):
+        return self.exit_price is None
+
+    @staticmethod
+    def output_header():
+        return 'Instrument,Action,Type,Quantity,Limit,Stop,State,Filled,Avg. price,Remaining,Name,Strategy,OCO,TIF,Account display name,ID,Time,Cancel,' + os.linesep
+
+
+# For an initial exit strategy:
+# in the money => 1) really go my way 2) just in the money, it is separated if I have already made the R
+# if I am really deep in the money, then, price jump out of dragon. RL10 X RL30, RL30 turned, hit Z3. trailing stop with maximum bar.
+# if not working, really stop out.
