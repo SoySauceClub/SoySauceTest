@@ -78,11 +78,12 @@ class SingleDayTest(object):
             self._state = Status.AMBIGUOUS_UP
 
     def ambiguous_up(self, i):
-        if F.is_slope_negative(self.rl10[:i]) and \
-                F.is_slope_negative(self.rl30[:i]) and \
-                F.is_slope_negative(self.dragon_mean[:i]) and \
-                F.is_cross_below(self.rl10[:i], self.rl30[:i], look_back_period=LOOK_BACK_PERIOD) and \
-                F.is_cross_below(self.rl10[:i], self.dragon_lower[:i], look_back_period=LOOK_BACK_PERIOD):
+        if F.is_owl_short_after_ambiguous_up(self.rl10[:i], self.rl30[:i], self.dragon_mean[:i], self.dragon_lower[:i], LOOK_BACK_PERIOD):
+        # if F.is_slope_negative(self.rl10[:i]) and \
+        #         F.is_slope_negative(self.rl30[:i]) and \
+        #         F.is_slope_negative(self.dragon_mean[:i]) and \
+        #         F.is_cross_below(self.rl10[:i], self.rl30[:i], look_back_period=LOOK_BACK_PERIOD) and \
+        #         F.is_cross_below(self.rl10[:i], self.dragon_lower[:i], look_back_period=LOOK_BACK_PERIOD):
             print(self._date[:i][-1].strftime(DATETIME_FORMAT) + ' ' + 'SHORT OWL')
             # TODO: should here enter the trade and figure out the exit strategy
             self._state = Status.INIT
@@ -93,11 +94,12 @@ class SingleDayTest(object):
         self._last_move_index = i
 
     def ambiguous_down(self, i):
-        if F.is_slope_positive(self.rl10[:i]) and \
-                F.is_slope_positive(self.rl30[:i]) and \
-                F.is_slope_positive(self.dragon_mean[:i]) and \
-                F.is_cross_above(self.rl10[:i], self.rl30[:i], look_back_period=LOOK_BACK_PERIOD) and \
-                F.is_cross_above(self.rl10[:i], self.dragon_upper[:i], look_back_period=LOOK_BACK_PERIOD):
+        if F.is_owl_long_after_ambiguous_down(self.rl10[:i], self.rl30[:i], self.dragon_mean[:i], self.dragon_upper[:i], LOOK_BACK_PERIOD):
+        # if F.is_slope_positive(self.rl10[:i]) and \
+        #         F.is_slope_positive(self.rl30[:i]) and \
+        #         F.is_slope_positive(self.dragon_mean[:i]) and \
+        #         F.is_cross_above(self.rl10[:i], self.rl30[:i], look_back_period=LOOK_BACK_PERIOD) and \
+        #         F.is_cross_above(self.rl10[:i], self.dragon_upper[:i], look_back_period=LOOK_BACK_PERIOD):
             print(self._date[:i][-1].strftime(DATETIME_FORMAT) + ' ' + 'LONG OWL')
             # TODO: should here enter the trade and figure out the exit strategy
             self._state = Status.INIT

@@ -56,3 +56,39 @@ class SignalFinder(object):
                 if series_1[reverse_index] > series_2[reverse_index]:
                     return True
         return False
+
+    @staticmethod
+    def get_min_value(series, look_back_period):
+        if len(series) <= look_back_period:
+            return min(series)
+        min_value = min(series[-look_back_period:])
+        if min_value == series[-look_back_period]:
+            additional_look_back = min(2 * look_back_period, len(series))
+            min_value = min(series[-additional_look_back:])
+        return min_value
+
+    @staticmethod
+    def get_max_value(series, look_back_period):
+        if len(series) <= look_back_period:
+            return max(series)
+        max_value = max(series[-look_back_period:])
+        if max_value == series[-look_back_period]:
+            additional_look_back = max(2 * look_back_period, len(series))
+            max_value = max(series[-additional_look_back:])
+        return max_value
+
+    @staticmethod
+    def is_owl_short_after_ambiguous_up(rl10, rl30, dragon_mean, dragon_lower, look_back_period):
+        return SignalFinder.is_slope_negative(rl10) and \
+               SignalFinder.is_slope_negative(rl30) and \
+               SignalFinder.is_slope_negative(dragon_mean) and \
+               SignalFinder.is_cross_below(rl10, rl30, look_back_period) and \
+               SignalFinder.is_cross_below(rl10, dragon_lower, look_back_period)
+
+    @staticmethod
+    def is_owl_long_after_ambiguous_down(rl10, rl30, dragon_mean, dragon_upper, look_back_period):
+        return SignalFinder.is_slope_positive(rl10) and \
+               SignalFinder.is_slope_positive(rl30) and \
+               SignalFinder.is_slope_positive(dragon_mean) and \
+               SignalFinder.is_cross_above(rl10, rl30, look_back_period) and \
+               SignalFinder.is_cross_above(rl10, dragon_upper, look_back_period)
